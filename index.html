@@ -1,0 +1,56 @@
+<!-- This idea is to ultimately have satellite location data, currently sourced from https://api.spectator.earth/
+being displayed through CesiumJS -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- @csstools/Normalize CSS -->
+    <link href="https://unpkg.com/@csstools/normalize.css" rel="stylesheet" />
+	
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+    <!-- Include the CesiumJS JavaScript and CSS files -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.116/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+	  <link rel="stylesheet" href="style.css">
+
+    <title>Title</title>
+  </head>
+  <body>
+    <div class="container-fluid px-0">
+      <div class="heading d-flex">
+        <div class="headContent d-flex flex-column">
+          <h1 class="headText text-white mb-auto ml-4">Satellite tracker</h1>
+          <div id="geolocStatus" class="ml-4 mb-1">
+            <span class="text-white">Geolocation:</span>
+            <div class="spinner-grow text-warning spinner-grow-sm"  id="geoDotLoad" role="status">
+              <span class="sr-only">Loading geolocation</span>
+            </div>
+            <button type="button" id="geoBtnLoad" class="btn btn-outline-warning" disabled>Loading</button>
+            <div id="geoDotFail" class="bg-danger">
+              <span class="sr-only">Geolocation failed</span>
+            </div>
+            <button type="button" id="geoBtnFail" onclick="getGeolocation()" class="btn btn-outline-danger">Retry</button>
+            <div id="geoDotDone" class="bg-success">
+              <span class="sr-only">Geolocation loaded</span>
+            </div>
+            <button type="button" id="geoBtnDone" onclick="setLocalView()" class="btn btn-outline-success">Home</button>
+            <button type="button" id="geoBtnOverview" onclick="setGlobalView()" class="btn btn-outline-info">Overview</button>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center mt-1">
+        <div id="cesiumContainer"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

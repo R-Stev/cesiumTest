@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.heading {
+    justify-content: center;
+}
+
+.headContent {
+    font-family: 'Source Sans 3', sans-serif;
+    /* https://unsplash.com/photos/PQHOmT-vkgA */
+    background-image: url('./images/norbert-kowalczyk-PQHOmT-vkgA-unsplash.jpg');
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: 46%;
+    height: 125px;
+    width: min(100%, 1280px);
+}
+
+.headText {
+    font-size: 3rem;
+    font-weight: 200;
+    line-height: 1.2;
+}
+
+.btn {
+    width: 80px;
+    height: 34px;
+    padding: 4px 9px;
+}
+
+/* #geoDotLoad {} */
+
+#geoDotFail, #geoDotDone {
+    display: none;
+    width:1rem;
+    height:1rem;
+    vertical-align:-.125em;
+    border-radius:50%;
+}
+
+/* #geoBtnLoad {} */
+
+#geoBtnFail, #geoBtnDone {
+    display: none;
+}
+
+#cesiumContainer {
+    border: 1px solid black;
+    width: 100%;
+    height: calc(100vh - 125px - 0.25rem);
+    max-width: 1280px;
+}
+
+@media only screen and (orientation: landscape) {
+    .headContent {
+        height: 200px;
+    }
+
+    .headText {
+        font-size: 4.5rem;
+        font-weight: 300;
+    }
+
+    #cesiumContainer {
+        height: 100%;
+        max-width: 1280px;
+        max-height: calc(100vh - 200px - 0.25rem);
+        aspect-ratio: 16/9;
+    }
+}
