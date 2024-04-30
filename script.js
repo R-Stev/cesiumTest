@@ -58,6 +58,9 @@ handler.setInputAction(function (position) {
 
 
 viewer.clock.onTick.addEventListener(function (clock) {
+  document.getElementById("heading").innerHTML = viewer.camera.heading;
+  document.getElementById("pitch").innerHTML = viewer.camera.pitch;
+  document.getElementById("roll").innerHTML = viewer.camera.roll;
   if (flags.looking) {
     const width = viewer.canvas.clientWidth;
     const height = viewer.canvas.clientHeight;
@@ -213,7 +216,7 @@ const main = async () => {
   // console.log(satTrajectory)
   cesiumSetup(flightData)
   // getGeolocation();
-  setLocalPos({coords: {latitude: -34.414392, longitude: 150.870356}})
+  setLocalPos({coords: {latitude: -34.918497, longitude: 138.598376}})
 };
 
 // CesiumJS initialisation
