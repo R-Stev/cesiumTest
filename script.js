@@ -1,5 +1,6 @@
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJmN2NiNWExOC1mMGE1LTRhZGQtYjQ0Ni00NGVmNTE1OTc2YTQiLCJpZCI6MTQwODA5LCJpYXQiOjE2ODQ4MzU1MDN9.lp2qQ6TJ95mGe2C1mH_TnU5vGUpw4-AdAVbE_nT0-1M';
 let localCoord = [];
+let oldOrientation = [0, 0, 0];
 let startMousePosition;
 let mousePosition;
 const flags = {
@@ -23,22 +24,42 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   sceneModePicker: false,
 });
 
-if (window.DeviceOrientationEvent) {
-	window.addEventListener('deviceorientation', onDeviceOrientationChanged, false);
-}
+const sufficientChange = (change) => {
+  const MinChange = 1;
+  // Returns true if orentation has changed by 1 degree or more
+  for(let i in change){
+    if(change[i] < MinChange) {}
+    else if(Cesium.Math.TWO_PI - change[i] < MinChange) {}
+    else {return true;}
+  }
+  return false;
+};
 
 function onDeviceOrientationChanged(eventData) {
-  // Skipping alignToDevice if eventData has any null value
-  if([eventData.alpha, eventData.beta, eventData.gamma].some((x) => x === null) == false) {
+  // Skipping if eventData has any null value
+  if([eventData?.alpha, eventData?.beta, eventData?.gamma].some((x) => x == null) == false) {
     flags.alignToDevice = true;
-  }
-	viewer.camera.setView({
-    orientation : {
-      heading : Cesium.Math.toRadians(eventData.alpha),
-      pitch : Cesium.Math.toRadians(eventData.beta - 90),
-      roll: Cesium.Math.toRadians(eventData.gamma)
+    let orientationChange = [
+      Math.abs(eventData.alpha - oldOrientation[0]),
+      Math.abs(eventData.beta - oldOrientation[1]),
+      Math.abs(eventData.gamma - oldOrientation[2])
+    ]
+    //Updates camera view if orientation has changed sufficiently
+    if(sufficientChange(orientationChange)){
+      viewer.camera.setView({
+        orientation : {
+          heading : Cesium.Math.toRadians(-eventData.alpha),
+          pitch : Cesium.Math.toRadians(eventData.beta - 90),
+          roll: Cesium.Math.toRadians(eventData.gamma)
+        }
+      });
+      oldOrientation = [eventData.alpha, eventData.beta, eventData.gamma];
     }
-  });
+  }
+}
+
+if (window.DeviceOrientationEvent) {
+	window.addEventListener('deviceorientation', onDeviceOrientationChanged, false);
 }
 
 const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
