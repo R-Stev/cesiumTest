@@ -28,13 +28,15 @@ if (window.DeviceOrientationEvent) {
 }
 
 function onDeviceOrientationChanged(eventData) {
-  flags.alignToDevice = true;
-  console.log(`DeviceOrientationEvent, ${eventData}`)
+  // Skipping alignToDevice if eventData has any null value
+  if([eventData.alpha, eventData.beta, eventData.gamma].some((x) => x === null) == false) {
+    flags.alignToDevice = true;
+  }
 	viewer.camera.setView({
     orientation : {
-      heading : eventData.gamma,
-      pitch : eventData.beta,
-      roll: eventData.alpha
+      heading : Cesium.Math.toRadians(eventData.alpha),
+      pitch : Cesium.Math.toRadians(eventData.beta - 90),
+      roll: Cesium.Math.toRadians(eventData.gamma)
     }
   });
 }
@@ -202,7 +204,6 @@ const main = async () => {
   } catch (error) {
     console.log(`Failed to load tileset: ${error}`);
   }
-  viewer.scene.screenSpaceCameraController.enableCollisionDetection = true;
   viewer.scene.screenSpaceCameraController.enableLook = false;
   viewer.scene.screenSpaceCameraController.enableRotate = false;
   viewer.scene.screenSpaceCameraController.enableTilt = false;
