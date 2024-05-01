@@ -23,19 +23,24 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   navigationHelpButton: false,
   sceneModePicker: false,
 });
+viewer.infoBox.frame.setAttribute("sandbox", "allow-same-origin allow-popups allow-forms allow-scripts");
+viewer.infoBox.frame.src = "about:blank";
+
 
 const sufficientChange = (change) => {
   const MinChange = 1;
   // Returns true if orentation has changed by 1 degree or more
+  // console.log(change);
   for(let i in change){
-    if(change[i] < MinChange) {}
-    else if(Cesium.Math.TWO_PI - change[i] < MinChange) {}
-    else {return true;}
+    if(change[i] >= MinChange && 360 - change[i] >= MinChange) {
+      return true;
+    }
   }
   return false;
 };
 
 function onDeviceOrientationChanged(eventData) {
+  // console.log(`${eventData.alpha} ${eventData.beta} ${eventData.gamma}`);
   // Skipping if eventData has any null value
   if([eventData?.alpha, eventData?.beta, eventData?.gamma].some((x) => x == null) == false) {
     flags.alignToDevice = true;
