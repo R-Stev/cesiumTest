@@ -27,9 +27,9 @@ viewer.infoBox.frame.setAttribute("sandbox", "allow-same-origin allow-popups all
 viewer.infoBox.frame.src = "about:blank";
 
 
+// Returns true if orentation has changed by 1 degree or more
 const sufficientChange = (change) => {
   const MinChange = 1;
-  // Returns true if orentation has changed by 1 degree or more
   // console.log(change);
   for(let i in change){
     if(change[i] >= MinChange && 360 - change[i] >= MinChange) {
@@ -39,17 +39,18 @@ const sufficientChange = (change) => {
   return false;
 };
 
+// Updates camera view using device orientation if eventData is valid & flags.homeView = true
 function onDeviceOrientationChanged(eventData) {
   // console.log(`${eventData.alpha} ${eventData.beta} ${eventData.gamma}`);
-  // Skipping if eventData has any null value
-  if([eventData?.alpha, eventData?.beta, eventData?.gamma].some((x) => x == null) == false) {
+  // validOrientation = false if eventData has any null value
+  let validOrientation = [eventData?.alpha, eventData?.beta, eventData?.gamma].some((x) => x == null) == false;
+  if(flags.homeView && validOrientation) {
     flags.alignToDevice = true;
     let orientationChange = [
       Math.abs(eventData.alpha - oldOrientation[0]),
       Math.abs(eventData.beta - oldOrientation[1]),
       Math.abs(eventData.gamma - oldOrientation[2])
     ]
-    //Updates camera view if orientation has changed sufficiently
     if(sufficientChange(orientationChange)){
       viewer.camera.setView({
         orientation : {
