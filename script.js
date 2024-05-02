@@ -41,6 +41,9 @@ const sufficientChange = (change) => {
 
 // Updates camera view using device orientation if eventData is valid & flags.homeView = true
 function onDeviceOrientationChanged(eventData) {
+  document.getElementById("heading").innerHTML = eventData.alpha.toFixed();
+  document.getElementById("pitch").innerHTML = eventData.beta.toFixed();
+  document.getElementById("roll").innerHTML = eventData.gamma.toFixed();
   // console.log(`${eventData.alpha} ${eventData.beta} ${eventData.gamma}`);
   // validOrientation = false if eventData has any null value
   let validOrientation = [eventData?.alpha, eventData?.beta, eventData?.gamma].some((x) => x == null) == false;
@@ -87,9 +90,9 @@ handler.setInputAction(function (position) {
 
 
 viewer.clock.onTick.addEventListener(function (clock) {
-  document.getElementById("heading").innerHTML = viewer.camera.heading;
-  document.getElementById("pitch").innerHTML = viewer.camera.pitch;
-  document.getElementById("roll").innerHTML = viewer.camera.roll;
+  // document.getElementById("heading").innerHTML = viewer.camera.heading;
+  // document.getElementById("pitch").innerHTML = viewer.camera.pitch;
+  // document.getElementById("roll").innerHTML = viewer.camera.roll;
   if (flags.looking) {
     const width = viewer.canvas.clientWidth;
     const height = viewer.canvas.clientHeight;
@@ -188,8 +191,8 @@ const setGlobalView = () => {
 
 const flyToLocal = (localCoord) => {
   viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(localCoord.longitude, localCoord.latitude, 50.0),
-    orientation: {pitch: Cesium.Math.toRadians(25.0),}
+    destination: Cesium.Cartesian3.fromDegrees(localCoord.longitude, localCoord.latitude, 25.0),
+    orientation: {pitch: Cesium.Math.toRadians(5.0),}
   });
 };
 

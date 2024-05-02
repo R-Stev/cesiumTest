@@ -15,13 +15,13 @@
     background-image: url('./images/norbert-kowalczyk-PQHOmT-vkgA-unsplash.jpg');
     background-repeat: no-repeat;
     background-position-x: center;
-    background-position-y: 46%;
-    height: 125px;
+    background-position-y: 45%;
+    height: 75px;
     width: min(100%, 1280px);
 }
 
 .headText {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 200;
     line-height: 1.2;
 }
@@ -51,24 +51,24 @@
 #cesiumContainer {
     border: 1px solid black;
     width: 100%;
-    height: calc(100vh - 125px - 0.25rem);
+    height: calc(100vh - 75px - 0.25rem);
     max-width: 1280px;
 }
 
 @media only screen and (orientation: landscape) {
     .headContent {
-        height: 200px;
+        height: 125px;
     }
 
     .headText {
-        font-size: 4.5rem;
+        font-size: 3rem;
         font-weight: 300;
     }
 
     #cesiumContainer {
         height: 100%;
         max-width: 1280px;
-        max-height: calc(100vh - 200px - 0.25rem);
+        max-height: calc(100vh - 125px - 0.25rem);
         aspect-ratio: 16/9;
     }
 }
