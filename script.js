@@ -58,7 +58,7 @@ function onDeviceOrientationChanged(eventData) {
       viewer.camera.setView({
         orientation : {
           heading : Cesium.Math.toRadians(-eventData.alpha),
-          pitch : Cesium.Math.toRadians(eventData.beta - 90),
+          pitch : Cesium.Math.toRadians(eventData.beta + eventData.gamma - 90),
           roll: Cesium.Math.toRadians(eventData.gamma)
         }
       });
