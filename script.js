@@ -41,9 +41,6 @@ const sufficientChange = (change) => {
 
 // Updates camera view using device orientation if eventData is valid & flags.homeView = true
 function onDeviceOrientationChanged(eventData) {
-  document.getElementById("heading").innerHTML = eventData.alpha.toFixed();
-  document.getElementById("pitch").innerHTML = eventData.beta.toFixed();
-  document.getElementById("roll").innerHTML = eventData.gamma.toFixed();
   // console.log(`${eventData.alpha} ${eventData.beta} ${eventData.gamma}`);
   // validOrientation = false if eventData has any null value
   let validOrientation = [eventData?.alpha, eventData?.beta, eventData?.gamma].some((x) => x == null) == false;
@@ -58,8 +55,7 @@ function onDeviceOrientationChanged(eventData) {
       viewer.camera.setView({
         orientation : {
           heading : Cesium.Math.toRadians(-eventData.alpha),
-          pitch : Cesium.Math.toRadians(eventData.beta + eventData.gamma - 90),
-          roll: Cesium.Math.toRadians(eventData.gamma)
+          pitch : Cesium.Math.toRadians(eventData.beta - 90)
         }
       });
       oldOrientation = [eventData.alpha, eventData.beta, eventData.gamma];
@@ -90,9 +86,6 @@ handler.setInputAction(function (position) {
 
 
 viewer.clock.onTick.addEventListener(function (clock) {
-  // document.getElementById("heading").innerHTML = viewer.camera.heading;
-  // document.getElementById("pitch").innerHTML = viewer.camera.pitch;
-  // document.getElementById("roll").innerHTML = viewer.camera.roll;
   if (flags.looking) {
     const width = viewer.canvas.clientWidth;
     const height = viewer.canvas.clientHeight;
