@@ -113,14 +113,15 @@ viewer.clock.onTick.addEventListener(function (clock) {
 
 
 // API access and managing the satellite data
-const getSatData = async (satNum = '') => {
-  const satelliteUrl = `https://api.spectator.earth/satellite/${satNum}`
+const getSatData = async () => {
+  // const satelliteUrl = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
+  // Using ~100 brightest satellites
+  const satelliteUrl = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=visual&FORMAT=tle'
   try {
     let response = await fetch(satelliteUrl, {method: 'GET'})
     if(response.ok){
-      let jsonResponse = await response.json()
-    //   console.log(jsonResponse)
-      return satNum == '' ? jsonResponse.features : jsonResponse
+      let textResponse = await response.text()
+      return textResponse.split('\n')
     }
   } catch(err) {
     console.log(err)
@@ -143,24 +144,25 @@ const getSatTrajectory = async (satNum) => {
 };
 
 const parseGeo = (rawData) => {
-    let tempData = []
-    let parsed = []
-    // Filtering out the satellites that lack geometry data
-    for(i in rawData){
-        if(rawData[i].geometry){
-            tempData.push(rawData[i])
-        }
-    }
-    for(i in tempData){
-        parsed.push({
-            "name": tempData[i].properties.name,
-            "id": tempData[i].id,
-            "longitude": tempData[i].geometry.coordinates[0],
-            "latitude": tempData[i].geometry.coordinates[1]
-        })
-    }
-    // console.log(rawData)
-    return parsed
+  let parsed = []
+
+  for(let i = 0; i < rawData.length - 1; i+=3){
+    let satrec = satellite.twoline2satrec(rawData[i+1], rawData[i+2]);
+    let date = new Date();
+    let positionAndVelocity = satellite.propagate(satrec, date);
+    let gmst = satellite.gstime(date);
+    let position = satellite.eciToGeodetic(positionAndVelocity.position, gmst);
+    let longitude = position.longitude * Cesium.Math.DEGREES_PER_RADIAN
+    let latitude = position.latitude * Cesium.Math.DEGREES_PER_RADIAN
+    parsed.push({
+      "name": rawData[i],
+      "id": rawData[i+1].substring(9, 16).trim(),
+      "description": `Location: (${latitude.toFixed(2)}, ${longitude.toFixed(2)}, ${position.height.toFixed()} km)`,
+      "position": Cesium.Cartesian3.fromDegrees(longitude, latitude, position.height * 1000),
+      "point": { pixelSize: 10, color: Cesium.Color.RED }
+    })
+  }
+  return parsed
 };
 
 const setLocalPos = (pos) => {
@@ -246,16 +248,7 @@ const main = async () => {
 // CesiumJS initialisation
 const cesiumSetup = (flightData) => {
     for (let i = 0; i < flightData.length; i++) {
-        const dataPoint = flightData[i];
-
-        viewer.entities.add({
-            name: dataPoint.name,
-            description: `Location: (${dataPoint.longitude}, ${dataPoint.latitude})`,
-            // description: `Location: (${dataPoint.longitude}, ${dataPoint.latitude}, ${dataPoint.height})`,
-            // api.spectator.earth does not include altitudes, using 1000km for now
-            position: Cesium.Cartesian3.fromDegrees(dataPoint.longitude, dataPoint.latitude, 1000000),
-            point: { pixelSize: 10, color: Cesium.Color.RED }
-        });
+        viewer.entities.add(flightData[i]);
     }
 }
 
