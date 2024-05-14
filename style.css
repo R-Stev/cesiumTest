@@ -54,6 +54,9 @@
     height: calc(100vh - 75px - 0.25rem);
     max-width: 1280px;
 }
+.cesium-animation-knobOuter, .cesium-animation-rectButton, .cesium-animation-shuttleRingG{
+    display: none;
+}
 
 @media only screen and (orientation: landscape) {
     .headContent {

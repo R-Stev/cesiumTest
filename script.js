@@ -22,6 +22,7 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   homeButton: false,
   navigationHelpButton: false,
   sceneModePicker: false,
+  timeline: false
 });
 viewer.infoBox.frame.setAttribute("sandbox", "allow-same-origin allow-popups allow-forms allow-scripts");
 viewer.infoBox.frame.src = "about:blank";
@@ -143,22 +144,26 @@ const getSatTrajectory = async (satNum) => {
     }
 };
 
-const parseGeo = (rawData) => {
+const parseGeo = (rawData, start, stop) => {
   let parsed = []
 
   for(let i = 0; i < rawData.length - 1; i+=3){
-    let satrec = satellite.twoline2satrec(rawData[i+1], rawData[i+2]);
-    let date = new Date();
-    let positionAndVelocity = satellite.propagate(satrec, date);
-    let gmst = satellite.gstime(date);
-    let position = satellite.eciToGeodetic(positionAndVelocity.position, gmst);
-    let longitude = position.longitude * Cesium.Math.DEGREES_PER_RADIAN
-    let latitude = position.latitude * Cesium.Math.DEGREES_PER_RADIAN
+    const satrec = satellite.twoline2satrec(rawData[i+1], rawData[i+2]);
+    const positionsOverTime = new Cesium.SampledPositionProperty();
+    for(let i = 0; i < 9000; i+=10){
+      const time = Cesium.JulianDate.addSeconds(start, i, new Cesium.JulianDate());
+      const jsDate = Cesium.JulianDate.toDate(time);
+      const positionAndVelocity = satellite.propagate(satrec, jsDate);
+      const p = satellite.eciToGeodetic(positionAndVelocity.position, satellite.gstime(jsDate));
+      const position = Cesium.Cartesian3.fromRadians(p.longitude, p.latitude, p.height * 1000);
+      positionsOverTime.addSample(time, position);
+    }
     parsed.push({
       "name": rawData[i],
       "id": rawData[i+1].substring(9, 16).trim(),
-      "description": `Location: (${latitude.toFixed(2)}, ${longitude.toFixed(2)}, ${position.height.toFixed()} km)`,
-      "position": Cesium.Cartesian3.fromDegrees(longitude, latitude, position.height * 1000),
+      // "description": `Location: (${latitude.toFixed(2)}, ${longitude.toFixed(2)}, ${position.height.toFixed()} km)`,
+      // "position": Cesium.Cartesian3.fromDegrees(longitude, latitude, position.height * 1000),
+      "position": positionsOverTime,
       "point": { pixelSize: 10, color: Cesium.Color.RED }
     })
   }
@@ -223,11 +228,19 @@ const getGeolocation = () => {
 };
 
 const main = async () => {
+  const start = Cesium.JulianDate.fromDate(new Date());
+  const stop = Cesium.JulianDate.addSeconds(start, 9000, new Cesium.JulianDate());
+  viewer.clock.startTime = start.clone();
+  viewer.clock.stopTime = stop.clone();
+  viewer.clock.currentTime = start.clone();
+  // viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP;
   try {
     const tileset = await Cesium.createGooglePhotorealistic3DTileset();
     viewer.scene.primitives.add(tileset);
   } catch (error) {
     console.log(`Failed to load tileset: ${error}`);
+  } finally {
+    viewer.clock.shouldAnimate = true;
   }
   viewer.scene.screenSpaceCameraController.enableLook = false;
   viewer.scene.screenSpaceCameraController.enableRotate = false;
@@ -237,7 +250,7 @@ const main = async () => {
   
   let satelliteData = await getSatData()
   // console.log(satelliteData[11].geometry)
-  const flightData = parseGeo(satelliteData)
+  const flightData = parseGeo(satelliteData, start, stop)
   // let satTrajectory = await getSatTrajectory(615)
   // console.log(satTrajectory)
   cesiumSetup(flightData)
