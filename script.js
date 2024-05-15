@@ -241,6 +241,12 @@ const main = async () => {
     console.log(`Failed to load tileset: ${error}`);
   } finally {
     viewer.clock.shouldAnimate = true;
+    let updateDescription = setInterval(function() {
+      if(viewer.selectedEntity){
+        let p = Cesium.Cartographic.fromCartesian(viewer.selectedEntity.position.getValue(Cesium.JulianDate.fromDate(new Date())));
+        viewer.selectedEntity.description = `Location: (${(p.latitude * Cesium.Math.DEGREES_PER_RADIAN).toFixed(2)}, ${(p.longitude * Cesium.Math.DEGREES_PER_RADIAN).toFixed(2)}, ${(p.height / 1000).toFixed()} km)`;
+      }
+    }, 500);
   }
   viewer.scene.screenSpaceCameraController.enableLook = false;
   viewer.scene.screenSpaceCameraController.enableRotate = false;
