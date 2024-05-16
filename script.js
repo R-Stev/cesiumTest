@@ -24,6 +24,7 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   sceneModePicker: false,
   timeline: false
 });
+// To allow Cesium.js local resources in Chrome
 viewer.infoBox.frame.setAttribute("sandbox", "allow-same-origin allow-popups allow-forms allow-scripts");
 viewer.infoBox.frame.src = "about:blank";
 
@@ -129,27 +130,14 @@ const getSatData = async () => {
   }
 };
 
-// API access and managing the satellite trajectory data
-const getSatTrajectory = async (satNum) => {
-  const satelliteUrl = `https://api.spectator.earth/satellite/${satNum}/trajectory`
-  try {
-      let response = await fetch(satelliteUrl, {method: 'GET'})
-      if(response.ok){
-        let jsonResponse = await response.json()
-      //   console.log(jsonResponse)
-        return jsonResponse
-      }
-    } catch(err) {
-      console.log(err)
-    }
-};
-
 const parseGeo = (rawData, start, stop) => {
   let parsed = []
 
+  // For each satellite,
   for(let i = 0; i < rawData.length - 1; i+=3){
     const satrec = satellite.twoline2satrec(rawData[i+1], rawData[i+2]);
     const positionsOverTime = new Cesium.SampledPositionProperty();
+    // creates the sequence of positions over time.
     for(let i = 0; i < 9000; i+=10){
       const time = Cesium.JulianDate.addSeconds(start, i, new Cesium.JulianDate());
       const jsDate = Cesium.JulianDate.toDate(time);
@@ -161,8 +149,6 @@ const parseGeo = (rawData, start, stop) => {
     parsed.push({
       "name": rawData[i],
       "id": rawData[i+1].substring(9, 16).trim(),
-      // "description": `Location: (${latitude.toFixed(2)}, ${longitude.toFixed(2)}, ${position.height.toFixed()} km)`,
-      // "position": Cesium.Cartesian3.fromDegrees(longitude, latitude, position.height * 1000),
       "position": positionsOverTime,
       "point": { pixelSize: 10, color: Cesium.Color.RED }
     })
@@ -241,6 +227,7 @@ const main = async () => {
     console.log(`Failed to load tileset: ${error}`);
   } finally {
     viewer.clock.shouldAnimate = true;
+    // Handles updating the coordinates in the selected satellite's description
     let updateDescription = setInterval(function() {
       if(viewer.selectedEntity){
         let p = Cesium.Cartographic.fromCartesian(viewer.selectedEntity.position.getValue(Cesium.JulianDate.fromDate(new Date())));
@@ -255,10 +242,7 @@ const main = async () => {
   viewer.scene.screenSpaceCameraController.enableZoom = false;
   
   let satelliteData = await getSatData()
-  // console.log(satelliteData[11].geometry)
   const flightData = parseGeo(satelliteData, start, stop)
-  // let satTrajectory = await getSatTrajectory(615)
-  // console.log(satTrajectory)
   cesiumSetup(flightData)
   // getGeolocation();
   setLocalPos({coords: {latitude: -34.918497, longitude: 138.598376}})
