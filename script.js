@@ -61,6 +61,7 @@ function onDeviceOrientationChanged(eventData) {
         }
       });
       oldOrientation = [eventData.alpha, eventData.beta, eventData.gamma];
+      document.getElementById('compassImg').setAttribute('style', `transform: rotate(${Cesium.Math.toDegrees(-viewer.camera.heading)}deg);`);
     }
   }
 }
@@ -105,6 +106,7 @@ viewer.clock.onTick.addEventListener(function (clock) {
             pitch: viewer.camera.pitch + y
           }
         });
+        document.getElementById('compassImg').setAttribute('style', `transform: rotate(${Cesium.Math.toDegrees(-viewer.camera.heading)}deg);`);
       }
     } else {
       viewer.camera.rotateLeft(x);
@@ -167,11 +169,14 @@ const setLocalPos = (pos) => {
 
 const setLocalView = () => {
   flags.homeView = true;
+  document.getElementById('compassImg').setAttribute('style', `transform: rotate(${Cesium.Math.toDegrees(-viewer.camera.heading)}deg);`);
+  document.getElementById("compass").style.display = "block";
   flyToLocal(localCoord);
 };
 
 const setGlobalView = () => {
   flags.homeView = false;
+  document.getElementById("compass").style.display = "none";
   viewer.camera.flyHome()
 };
 
@@ -240,6 +245,16 @@ const main = async () => {
   viewer.scene.screenSpaceCameraController.enableTilt = false;
   viewer.scene.screenSpaceCameraController.enableTranslate = false;
   viewer.scene.screenSpaceCameraController.enableZoom = false;
+
+  // Addition of the compass element, image sourced from https://pngimg.com/image/25581
+  const cesiumViewer = document.getElementsByClassName("cesium-viewer")[0];
+  const compassDiv = document.createElement("div");
+  const compassImg = document.createElement("img");
+  compassDiv.setAttribute('id', 'compass');
+  compassImg.setAttribute('src', './images/compass.png');
+  compassImg.setAttribute('id', 'compassImg');
+  compassDiv.appendChild(compassImg);
+  cesiumViewer.append(compassDiv);
   
   let satelliteData = await getSatData()
   const flightData = parseGeo(satelliteData, start, stop)
